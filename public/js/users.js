@@ -7,13 +7,6 @@
 	
 	$(document).ready(function()
 	{
-		$.ajaxSetup({
-			headers: 
-			{
-				'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-			}
-		});
-		
 		// Description : When user is click on user listing row on left side this user information is display.
 		$(document).on("click",".users",function()
 		{
@@ -37,57 +30,41 @@
 				});
 		});
 		
-		//Description : This function is used for getting updated record
-		function getUpdatedRecords()
-		{
-			//get first user id from list
-			var id = $("#users_list").find('tbody tr:first').attr('data-value');
-			//AJAX call for fetching user information
-			$.ajax({
-						type:'GET',
-						url:'/users',
-						success:function(data)
-						{
-							//Compare first user id on page and response first user id is same or not.If both id is not same updated record set first.
-							if(data.data[0].id != id){
-								var tableData = "";
-								for (var i=0;i<data.data.length;i++)
-								{
-									tableData += '<tr class="users" data-value="'+data.data[i].id+'" style="cursor: pointer;">'+
-									'<td>'+(i+1)+'</td>'+
-									'<td>'+data.data[i].name+'</td>'+
-									'<td>'+data.data[i].email+'</td></tr>';
-								}
-							
-								$("#users_list").find('tbody').html(tableData);	
-							}
-						},
-						error: function() {
-							alert('Error occurs!');
-					    }
-					});
-		}
-		//This is used to get query string from URL.
-		var getUrlParameter = function getUrlParameter(sParam) {
-			var sPageURL = window.location.search.substring(1),
-				sURLVariables = sPageURL.split('&'),
-				sParameterName,
-				i;
-
-			for (i = 0; i < sURLVariables.length; i++) {
-				sParameterName = sURLVariables[i].split('=');
-
-				if (sParameterName[0] === sParam) {
-					return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-				}
+		//This method is used for call fetch_data() every 5 seconds
+		setInterval(function(){
+			var page = $("#hidden_page").val();
+			if (page > 0) {
+				fetch_data(page);
 			}
-		};
+		}, 5000);
 
-		var page = getUrlParameter('page');
+		//code for pagination
+		$(document).on('click','.pagination a', function(event){
+			event.preventDefault();
+			page = $(this).attr('href').split('page=')[1];
+			$("#hidden_page").val(page);
+			fetch_data(page);
+		});
 		
-		//Condition for check user on first page or not.
-		if (page == 1 || page == undefined) {
-			//This method is used for call getUpdatedRecords() every 5 seconds
-			setInterval(function(){getUpdatedRecords();}, 5000);
+		//code for search users from list
+		$(document).on('keyup','input[name="q"]', function(event){
+			event.preventDefault();
+			$("#hidden_page").val(1);
+			fetch_data(1);
+		});
+		
+		//function for fetch data from database
+		function fetch_data(page)
+		{
+			var q = $('input[name="q"]').val();
+			$.ajax({
+				url:"users?page="+page+"&q="+q,
+				success:function(data){
+					$("#users_table").html(data);
+				},
+				error: function(){
+					alert('Error occurs!');
+				}
+			});
 		}
 	});

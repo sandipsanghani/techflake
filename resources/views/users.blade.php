@@ -44,41 +44,18 @@
 		</table>
 	</div>
 	<div class="col-md-6">
-			<form action="{{route('users')}}" method="POST" role="search">
-				{{ csrf_field() }}
 				<div class="input-group">
 					<input type="text" class="form-control" value="" name="q" placeholder="Search users"> 
 					<span class="input-group-btn">
-						<button type="submit" class="btn btn-default">
+						<button type="submit" class="btn btn-default" id="src_btn">
 							<span class="glyphicon glyphicon-search"></span>
 						</button>
 					</span>
 				</div>
-			</form>
-			<table class="table" id="users_list">
-				<thead>
-					<tr>
-						<th>No</th>
-						<th>Name</th>
-						<th>Email</th>
-					</tr>
-				</thead>
-				<tbody>
-				
-				@php
-				$i=1;
-				@endphp
-
-				@foreach($userList as $user)
-				<tr class="users" data-value="{{$user->id}}" style="cursor: pointer;">
-					<td>{{$i++}}</td>
-					<td>{{$user->name}}</td>
-					<td>{{$user->email}}</td>
-				</tr>
-				@endforeach
-				</tbody>
-			</table>
-			{!! $userList->render() !!}
+			<div id="users_table">
+				@include('users_pagination')
+			</div>
+			<input type="hidden" value="1" id="hidden_page" />
 		</div>
 	</div>
     </body>

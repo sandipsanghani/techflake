@@ -24,18 +24,38 @@ class UserController extends Controller
 			/*
 			* Note : I am not putting here '%'.$request->q.'%' for name and email because of indexing is not supported for that.
 			*/
-			$userList = User::where( 'name', 'LIKE',$request->q.'%')->orWhere( 'email', 'LIKE',$request->q.'%')->orderBy('updated_at')->paginate(20);
+			$userList = User::where( 'name', 'LIKE',$request->q.'%')->orWhere( 'email', 'LIKE',$request->q.'%')->orderBy('updated_at',"DESC")->paginate(20);
 			
 			$userList->appends(['q' =>$request->q]);
 			
 		}else{
 			$userList = User::orderBy('updated_at',"DESC")->paginate(20);
 		}
+		
 		if($request->ajax()){
-            return $userList;
+            return view('users_pagination',["userList"=>$userList]);
         }
+		
 		return view('users',["userList"=>$userList]);
     }
+	
+	public function getData(Request $request)
+	{
+		if (isset($request->q) && !empty($request->q) ){
+			
+			/*
+			* Note : I am not putting here '%'.$request->q.'%' for name and email because of indexing is not supported for that.
+			*/
+			$userList = User::where( 'name', 'LIKE',$request->q.'%')->orWhere( 'email', 'LIKE',$request->q.'%')->orderBy('updated_at',"DESC")->paginate(20);
+			
+			$userList->appends(['q' =>$request->q]);
+			
+		}else{
+			$userList = User::orderBy('updated_at',"DESC")->paginate(20);
+		}
+
+		return view('users_pagination',["userList"=>$userList]);
+	}
 	
 	/**
      * Description : This function is used for post method API call
